@@ -15,6 +15,8 @@ namespace Jellyfin.Plugin.SmartDuplicateManagement.Services;
 /// </summary>
 public class DataPersistenceService
 {
+    private static readonly JsonSerializerOptions JsonOptions = new() { WriteIndented = true };
+
     private readonly IApplicationPaths _applicationPaths;
     private readonly ILogger<DataPersistenceService> _logger;
     private readonly string _dataDirectory;
@@ -53,12 +55,13 @@ public class DataPersistenceService
     /// </summary>
     /// <param name="libraryId">The library identifier.</param>
     /// <param name="groups">The duplicate groups.</param>
-    public async Task SaveDuplicateGroupsAsync(Guid libraryId, List<DuplicateGroup> groups)
+    /// <returns>A <see cref="Task"/> representing the asynchronous save operation.</returns>
+    public async Task SaveDuplicateGroupsAsync(Guid libraryId, IReadOnlyCollection<DuplicateGroup> groups)
     {
         try
         {
             var filePath = Path.Combine(_dataDirectory, $"duplicates_{libraryId}.json");
-            var json = JsonSerializer.Serialize(groups, new JsonSerializerOptions { WriteIndented = true });
+            var json = JsonSerializer.Serialize(groups, JsonOptions);
             await File.WriteAllTextAsync(filePath, json).ConfigureAwait(false);
             _logger.LogInformation("Saved {Count} duplicate groups for library {LibraryId}", groups.Count, libraryId);
         }
@@ -98,6 +101,7 @@ public class DataPersistenceService
     /// Logs a deletion audit record.
     /// </summary>
     /// <param name="record">The audit record.</param>
+    /// <returns>A <see cref="Task"/> representing the asynchronous logging operation.</returns>
     public async Task LogDeletionAsync(DeletionAuditRecord record)
     {
         try

@@ -63,16 +63,26 @@ public class MetadataMerger
                 .FirstOrDefault() ?? string.Empty;
 
             // Genres: Union of all unique genres
-            merged.Genres = items
+            var genres = items
                 .SelectMany(i => i.Genres ?? Enumerable.Empty<string>())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+            merged.Genres.Clear();
+            foreach (var genre in genres)
+            {
+                merged.Genres.Add(genre);
+            }
 
             // Tags: Union of all unique tags
-            merged.Tags = items
+            var tags = items
                 .SelectMany(i => i.Tags ?? Enumerable.Empty<string>())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+            merged.Tags.Clear();
+            foreach (var tag in tags)
+            {
+                merged.Tags.Add(tag);
+            }
 
             // People: Union of all unique people (using GetPeople method)
             var allPeople = new List<string>();
@@ -82,9 +92,14 @@ public class MetadataMerger
                 allPeople.AddRange(peopleInfo.Select(p => p.Name));
             }
 
-            merged.People = allPeople
+            var people = allPeople
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+            merged.People.Clear();
+            foreach (var person in people)
+            {
+                merged.People.Add(person);
+            }
 
             // Ratings: Average of all ratings
             var ratings = items
@@ -102,10 +117,15 @@ public class MetadataMerger
             merged.ReleaseDate = dates.FirstOrDefault();
 
             // Studios: Union of all studios
-            merged.Studios = items
+            var studios = items
                 .SelectMany(i => i.Studios ?? Enumerable.Empty<string>())
                 .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
+            merged.Studios.Clear();
+            foreach (var studio in studios)
+            {
+                merged.Studios.Add(studio);
+            }
 
             // External IDs: Union of all IDs
             merged.ExternalIds.Clear();
@@ -121,11 +141,19 @@ public class MetadataMerger
             }
 
             // Descriptions: Collect unique descriptions
-            merged.Descriptions = items
+            var descriptions = items
                 .Select(i => i.Overview)
                 .Where(o => !string.IsNullOrWhiteSpace(o))
                 .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList()!;
+                .ToList();
+            merged.Descriptions.Clear();
+            foreach (var desc in descriptions)
+            {
+                if (desc != null)
+                {
+                    merged.Descriptions.Add(desc);
+                }
+            }
 
             _logger.LogInformation("Merged metadata for duplicate group {GroupId}", group.GroupId);
         }

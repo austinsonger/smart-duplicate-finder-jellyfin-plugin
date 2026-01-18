@@ -39,29 +39,29 @@ public class LibraryPreferences
     public string LibraryId { get; set; } = string.Empty;
 
     /// <summary>
-    /// Gets or sets the ordered list of resolution preferences.
+    /// Gets the ordered list of resolution preferences.
     /// </summary>
-    public IList<string> ResolutionPriority { get; set; }
+    public IList<string> ResolutionPriority { get; }
 
     /// <summary>
-    /// Gets or sets the ordered list of codec preferences.
+    /// Gets the ordered list of codec preferences.
     /// </summary>
-    public IList<string> CodecPriority { get; set; }
+    public IList<string> CodecPriority { get; }
 
     /// <summary>
-    /// Gets or sets the ordered list of dynamic range preferences.
+    /// Gets the ordered list of dynamic range preferences.
     /// </summary>
-    public IList<string> DynamicRangePriority { get; set; }
+    public IList<string> DynamicRangePriority { get; }
 
     /// <summary>
-    /// Gets or sets the ordered list of audio format preferences.
+    /// Gets the ordered list of audio format preferences.
     /// </summary>
-    public IList<string> AudioPriority { get; set; }
+    public IList<string> AudioPriority { get; }
 
     /// <summary>
-    /// Gets or sets the ordered list of source type preferences.
+    /// Gets the ordered list of source type preferences.
     /// </summary>
-    public IList<string> SourceTypePriority { get; set; }
+    public IList<string> SourceTypePriority { get; }
 
     /// <summary>
     /// Gets or sets a value indicating whether to automatically delete lower-quality duplicates.

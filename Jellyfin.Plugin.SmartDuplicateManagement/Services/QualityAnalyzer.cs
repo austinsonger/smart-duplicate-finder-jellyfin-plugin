@@ -54,7 +54,12 @@ public class QualityAnalyzer
         }
 
         // Sort versions by quality score (highest first)
-        group.Versions = group.Versions.OrderByDescending(v => v.QualityScore).ToList();
+        var sortedVersions = group.Versions.OrderByDescending(v => v.QualityScore).ToList();
+        group.Versions.Clear();
+        foreach (var version in sortedVersions)
+        {
+            group.Versions.Add(version);
+        }
 
         // Set highest quality as primary if not already set
         if (group.Versions.Count > 0 && group.PrimaryVersionId == Guid.Empty)

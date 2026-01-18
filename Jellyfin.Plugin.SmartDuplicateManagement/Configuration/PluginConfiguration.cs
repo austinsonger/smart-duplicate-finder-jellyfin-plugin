@@ -48,7 +48,7 @@ public class PluginConfiguration : BasePluginConfiguration
     public bool DryRunMode { get; set; }
 
     /// <summary>
-    /// Gets or sets the per-library preferences dictionary.
+    /// Gets the per-library preferences dictionary.
     /// </summary>
-    public IDictionary<string, LibraryPreferences> LibraryPreferences { get; set; }
+    public IDictionary<string, LibraryPreferences> LibraryPreferences { get; }
 }

@@ -72,7 +72,7 @@ public class VersionRecord
     public int Bitrate { get; set; }
 
     /// <summary>
-    /// Gets or sets the metadata fields originating from this version.
+    /// Gets the metadata fields originating from this version.
     /// </summary>
-    public IList<string> MetadataContribution { get; set; }
+    public IList<string> MetadataContribution { get; }
 }

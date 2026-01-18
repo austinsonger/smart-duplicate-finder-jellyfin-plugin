@@ -32,7 +32,7 @@ git clone https://github.com/yourusername/smart-duplicate-finder-jellyfin-plugin
 cd smart-duplicate-finder-jellyfin-plugin
 
 # Build the plugin
-dotnet build Jellyfin.Plugin.SmartDuplicateManagement.sln -c Release
+dotnet build ../../Jellyfin.Plugin.SmartDuplicateManagement.sln -c Release
 
 # Copy to Jellyfin plugins directory
 cp Jellyfin.Plugin.SmartDuplicateManagement/bin/Release/net9.0/Jellyfin.Plugin.SmartDuplicateManagement.dll \
@@ -115,11 +115,11 @@ You can call it whatever you'd like really. This class is used to hold settings 
 It should look something like the following:
 ```c#
     using MediaBrowser.Model.Plugins;
-    
+
     namespace MyJellyfinPlugin.Configuration;
     class PluginConfiguration : BasePluginConfiguration
     {
-        
+
     }
 ```
 
@@ -131,12 +131,12 @@ It should look something like the following:
 ```c#
     using MediaBrowser.Common.Plugins;
     using MyJellyfinPlugin.Configuration;
-    
+
     namespace MyJellyfinPlugin;
-    
+
     class Plugin : BasePlugin<PluginConfiguration>
     {
-        
+
     }
 ```
 
