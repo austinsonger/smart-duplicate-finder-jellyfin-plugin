@@ -1,4 +1,41 @@
-# So you want to make a Jellyfin plugin
+# Smart Duplicate & Versions Management Plugin for Jellyfin
+
+A Jellyfin plugin that intelligently detects, manages, and cleans up duplicate media items while merging metadata and allowing quality-based preferences.
+
+## Features
+
+- **Duplicate Detection**: Automatically identifies duplicate movies and TV shows using multi-stage matching (title, year, IMDb ID, TMDb ID, runtime)
+- **Quality Analysis**: Evaluates media quality based on resolution, codec, HDR/SDR, audio format, and source type
+- **Metadata Merging**: Combines metadata from all versions to provide comprehensive information
+- **Per-Library Preferences**: Configure quality priorities independently for each library
+- **Manual Review**: Interactive interface for reviewing and managing detected duplicates
+- **Automatic Deletion**: Optional automatic removal of lower-quality duplicates based on configurable thresholds
+- **Audit Logging**: Complete audit trail of all deletion operations
+- **Version Selection**: Single item display with version selector at playback time
+
+## Installation
+
+### From Release
+
+1. Download the latest release DLL
+2. Copy to your Jellyfin plugins directory:
+   - Windows: `%LOCALAPPDATA%\jellyfin\plugins\SmartDuplicateManagement\`
+   - Linux: `~/.local/share/jellyfin/plugins/SmartDuplicateManagement/`
+   - macOS: `~/.local/share/jellyfin/plugins/SmartDuplicateManagement/`
+3. Restart Jellyfin server
+
+### From Source
+
+```bash
+# Clone the repository
+git clone https://github.com/yourusername/smart-duplicate-finder-jellyfin-plugin.git
+cd smart-duplicate-finder-jellyfin-plugin
+
+# Build the plugin
+dotnet build Jellyfin.Plugin.SmartDuplicateManagement.sln -c Release
+
+# Copy to Jellyfin plugins directory
+cp Jellyfin.Plugin.SmartDuplicateManagement/bin/Release/net9.0/Jellyfin.Plugin.SmartDuplicateManagement.dll \
 
 Awesome! This guide is for you. Jellyfin plugins are written using the dotnet standard framework. What that means is you can write them in any language that implements the CLI or the DLI and can compile to net8.0. The examples on this page are in C# because that is what most of Jellyfin is written in, but F#, Visual Basic, and IronPython should all be compatible once compiled.
 
