@@ -64,6 +64,13 @@ public class DuplicateScanTask : IScheduledTask
     {
         _logger.LogInformation("Starting duplicate scan task");
 
+        using var scanLock = _persistenceService.AcquireScanLock();
+        if (scanLock == null)
+        {
+            _logger.LogWarning("Another scan is already in progress. Skipping scheduled task.");
+            return;
+        }
+
         try
         {
             var config = Plugin.Instance?.Configuration;
@@ -93,6 +100,12 @@ public class DuplicateScanTask : IScheduledTask
                 var library = libraries[i];
                 _logger.LogInformation("Scanning library: {Name}", library.Name);
 
+                if (!Guid.TryParse(library.ItemId, out var libraryId))
+                {
+                    _logger.LogError("Invalid library item ID format: {ItemId} for library {Name}. Skipping.", library.ItemId, library.Name);
+                    continue;
+                }
+
                 // Check if library has preferences configured
                 if (!config.LibraryPreferences.TryGetValue(library.ItemId, out var preferences))
                 {
@@ -105,7 +118,7 @@ public class DuplicateScanTask : IScheduledTask
 
                 // Detect duplicates
                 var duplicates = await _detectionEngine.ScanLibraryAsync(
-                    Guid.Parse(library.ItemId),
+                    libraryId,
                     preferences,
                     cancellationToken).ConfigureAwait(false);
 
@@ -118,7 +131,7 @@ public class DuplicateScanTask : IScheduledTask
 
                 // Save results
                 await _persistenceService.SaveDuplicateGroupsAsync(
-                    Guid.Parse(library.ItemId),
+                    libraryId,
                     duplicates).ConfigureAwait(false);
 
                 // Update progress

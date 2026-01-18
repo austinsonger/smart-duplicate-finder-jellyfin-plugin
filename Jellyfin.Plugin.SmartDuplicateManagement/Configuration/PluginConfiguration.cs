@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using MediaBrowser.Model.Plugins;
 
 namespace Jellyfin.Plugin.SmartDuplicateManagement.Configuration;
@@ -8,6 +9,9 @@ namespace Jellyfin.Plugin.SmartDuplicateManagement.Configuration;
 /// </summary>
 public class PluginConfiguration : BasePluginConfiguration
 {
+    private int _scanThreads;
+    private int _auditRetentionDays;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="PluginConfiguration"/> class.
     /// </summary>
@@ -15,9 +19,9 @@ public class PluginConfiguration : BasePluginConfiguration
     {
         // Set default global options
         EnablePlugin = true;
-        ScanThreads = 2;
+        _scanThreads = 2;
         LogLevel = LogLevel.Info;
-        AuditRetentionDays = 30;
+        _auditRetentionDays = 30;
         DryRunMode = false;
         LibraryPreferences = new Dictionary<string, LibraryPreferences>();
     }
@@ -30,7 +34,12 @@ public class PluginConfiguration : BasePluginConfiguration
     /// <summary>
     /// Gets or sets the number of parallel threads for duplicate detection.
     /// </summary>
-    public int ScanThreads { get; set; }
+    [Range(1, 8)]
+    public int ScanThreads
+    {
+        get => _scanThreads;
+        set => _scanThreads = value < 1 ? 1 : (value > 8 ? 8 : value);
+    }
 
     /// <summary>
     /// Gets or sets the logging verbosity level.
@@ -40,7 +49,12 @@ public class PluginConfiguration : BasePluginConfiguration
     /// <summary>
     /// Gets or sets the number of days to retain deletion audit logs.
     /// </summary>
-    public int AuditRetentionDays { get; set; }
+    [Range(1, 365)]
+    public int AuditRetentionDays
+    {
+        get => _auditRetentionDays;
+        set => _auditRetentionDays = value < 1 ? 1 : value;
+    }
 
     /// <summary>
     /// Gets or sets a value indicating whether to preview deletions without executing.

@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace Jellyfin.Plugin.SmartDuplicateManagement.Configuration;
 
@@ -7,6 +8,8 @@ namespace Jellyfin.Plugin.SmartDuplicateManagement.Configuration;
 /// </summary>
 public class LibraryPreferences
 {
+    private int _similarityThreshold;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="LibraryPreferences"/> class.
     /// </summary>
@@ -30,7 +33,7 @@ public class LibraryPreferences
         AutoDeleteEnabled = false;
         MinimumQualityThreshold = string.Empty;
         RequireManualReview = true;
-        SimilarityThreshold = 50;
+        _similarityThreshold = 50;
     }
 
     /// <summary>
@@ -81,5 +84,10 @@ public class LibraryPreferences
     /// <summary>
     /// Gets or sets the similarity threshold for duplicate detection (0-100).
     /// </summary>
-    public int SimilarityThreshold { get; set; }
+    [Range(0, 100)]
+    public int SimilarityThreshold
+    {
+        get => _similarityThreshold;
+        set => _similarityThreshold = value < 0 ? 0 : (value > 100 ? 100 : value);
+    }
 }

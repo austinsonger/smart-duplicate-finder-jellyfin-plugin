@@ -9,13 +9,116 @@
     <div id="smartDuplicateManagementConfigPage" data-role="page" class="page type-interior pluginConfigurationPage" data-require="emby-input,emby-button,emby-select,emby-checkbox">
         <div data-role="content">
             <div class="content-primary">
-                <div class="verticalSection">
-                    <h2>Smart Duplicate Management Configuration</h2>
-                    <p>Configuration UI is under development.</p>
-                    <p>This plugin provides intelligent duplicate detection and quality-based version management for your Jellyfin media libraries.</p>
-                </div>
+                <form id="smartDuplicateManagementConfigForm">
+                    <div class="verticalSection">
+                        <h2>Global Settings</h2>
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input is="emby-checkbox" type="checkbox" id="chkEnablePlugin" />
+                                <span>Enable Plugin</span>
+                            </label>
+                            <div class="fieldDescription">Master switch for all plugin functionality.</div>
+                        </div>
+
+                        <div class="inputContainer">
+                            <input is="emby-input" type="number" id="txtScanThreads" label="Scan Threads" min="1" max="8" />
+                            <div class="fieldDescription">Number of parallel threads for duplicate detection (1-8).</div>
+                        </div>
+
+                        <div class="selectContainer">
+                            <select is="emby-select" id="selectLogLevel" label="Log Level">
+                                <option value="Debug">Debug</option>
+                                <option value="Info">Info</option>
+                                <option value="Warning">Warning</option>
+                                <option value="Error">Error</option>
+                            </select>
+                            <div class="fieldDescription">Logging verbosity level.</div>
+                        </div>
+
+                        <div class="inputContainer">
+                            <input is="emby-input" type="number" id="txtAuditRetentionDays" label="Audit Retention Days" min="1" />
+                            <div class="fieldDescription">How long to keep deletion audit logs (days).</div>
+                        </div>
+
+                        <div class="checkboxContainer checkboxContainer-withDescription">
+                            <label>
+                                <input is="emby-checkbox" type="checkbox" id="chkDryRunMode" />
+                                <span>Dry Run Mode</span>
+                            </label>
+                            <div class="fieldDescription">Preview deletions without executing them.</div>
+                        </div>
+
+                        <div>
+                            <button is="emby-button" type="submit" class="raised button-confirm block emby-button">
+                                <span>Save</span>
+                            </button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
+
+        <script type="text/javascript">
+            var SmartDuplicateManagementConfig = {
+                pluginId: "8a3e4f2b-9c1d-4e6f-8b7a-2c5d6e8f9a0b"
+            };
+
+            document.querySelector('#smartDuplicateManagementConfigPage').addEventListener('pageshow', function () {
+                var page = this;
+
+                Dashboard.showLoadingMsg();
+
+                ApiClient.getPluginConfiguration(SmartDuplicateManagementConfig.pluginId).then(function (config) {
+                    page.querySelector('#chkEnablePlugin').checked = config.EnablePlugin;
+                    page.querySelector('#txtScanThreads').value = config.ScanThreads;
+                    page.querySelector('#selectLogLevel').value = config.LogLevel;
+                    page.querySelector('#txtAuditRetentionDays').value = config.AuditRetentionDays;
+                    page.querySelector('#chkDryRunMode').checked = config.DryRunMode;
+
+                    Dashboard.hideLoadingMsg();
+                });
+            });
+
+            document.querySelector('#smartDuplicateManagementConfigForm').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                var form = this;
+                var scanThreads = parseInt(form.querySelector('#txtScanThreads').value);
+                var auditDays = parseInt(form.querySelector('#txtAuditRetentionDays').value);
+
+                if (isNaN(scanThreads) || scanThreads < 1 || scanThreads > 8) {
+                    Dashboard.alert({
+                        message: 'Scan Threads must be between 1 and 8.',
+                        title: 'Invalid Value'
+                    });
+                    return false;
+                }
+
+                if (isNaN(auditDays) || auditDays < 1) {
+                    Dashboard.alert({
+                        message: 'Audit Retention Days must be at least 1.',
+                        title: 'Invalid Value'
+                    });
+                    return false;
+                }
+
+                Dashboard.showLoadingMsg();
+
+                ApiClient.getPluginConfiguration(SmartDuplicateManagementConfig.pluginId).then(function (config) {
+                    config.EnablePlugin = form.querySelector('#chkEnablePlugin').checked;
+                    config.ScanThreads = scanThreads;
+                    config.LogLevel = form.querySelector('#selectLogLevel').value;
+                    config.AuditRetentionDays = auditDays;
+                    config.DryRunMode = form.querySelector('#chkDryRunMode').checked;
+
+                    ApiClient.updatePluginConfiguration(SmartDuplicateManagementConfig.pluginId, config).then(function (result) {
+                        Dashboard.processPluginConfigurationUpdateResult(result);
+                    });
+                });
+
+                return false;
+            });
+        </script>
     </div>
 </body>
 </html>

@@ -1,0 +1,30 @@
+### Critical (Must Fix Before Release)
+
+1. ~~Implement IPluginServiceRegistrator to register all services~~
+2. ~~Register DuplicateScanTask with DI container~~
+3. ~~Verify and update Jellyfin package versions to match target server~~
+4. ~~Review and verify configPage.html implementation~~
+
+
+### High Priority (Should Fix)
+
+5. ~~Add input validation for configuration properties~~
+6. ~~Update version numbers in Directory.Build.props~~
+7. ~~Implement file locking for concurrent scan protection~~
+8. ~~Add validation for GUID parsing operations~~
+
+### Medium Priority (Recommended)
+
+9. Extract magic numbers to named constants
+10. Document DryRunMode and ScanThreads implementation status
+11. Add comprehensive unit tests
+12. Consider renaming custom LogLevel enum to avoid confusion
+13. Optimize duplicate detection algorithm for large groups
+14. Add LICENSE and CHANGELOG files
+
+### Low Priority (Nice to Have)
+
+15. Make quality score weights configurable
+16. Enhance error messages with actionable guidance
+17. Add telemetry/metrics for performance monitoring
+18. Consider scalability improvements for large libraries

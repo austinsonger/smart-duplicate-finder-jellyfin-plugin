@@ -14,6 +14,8 @@ namespace Jellyfin.Plugin.SmartDuplicateManagement;
 /// </summary>
 public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
 {
+    private static readonly Guid PluginId = new Guid("8a3e4f2b-9c1d-4e6f-8b7a-2c5d6e8f9a0b");
+
     /// <summary>
     /// Initializes a new instance of the <see cref="Plugin"/> class.
     /// </summary>
@@ -29,7 +31,7 @@ public class Plugin : BasePlugin<PluginConfiguration>, IHasWebPages
     public override string Name => "Smart Duplicate Management";
 
     /// <inheritdoc />
-    public override Guid Id => Guid.Parse("8a3e4f2b-9c1d-4e6f-8b7a-2c5d6e8f9a0b");
+    public override Guid Id => PluginId;
 
     /// <summary>
     /// Gets the current plugin instance.

@@ -22,6 +22,10 @@ public class DataPersistenceService
     private readonly string _dataDirectory;
     private readonly string _auditDirectory;
 
+    private readonly object _lockHandleObj = new object();
+    private IDisposable? _activeFileLock;
+    private int _lockCount;
+
     /// <summary>
     /// Initializes a new instance of the <see cref="DataPersistenceService"/> class.
     /// </summary>
@@ -48,6 +52,93 @@ public class DataPersistenceService
     {
         Directory.CreateDirectory(_dataDirectory);
         Directory.CreateDirectory(_auditDirectory);
+    }
+
+    /// <summary>
+    /// Acquires a file-based lock to prevent concurrent scans.
+    /// Supports re-entrancy within the same process.
+    /// </summary>
+    /// <returns>A disposable lock object, or null if the lock could not be acquired.</returns>
+    public IDisposable? AcquireScanLock()
+    {
+        lock (_lockHandleObj)
+        {
+            if (_activeFileLock != null)
+            {
+                _lockCount++;
+                _logger.LogDebug("Scan lock re-entered (Count: {Count})", _lockCount);
+                return new ActionDisposable(() => ReleaseLock());
+            }
+
+            var lockFilePath = Path.Combine(_dataDirectory, "scan.lock");
+            try
+            {
+                _logger.LogDebug("Attempting to acquire scan lock at {Path}", lockFilePath);
+
+                // OpenOrCreate with FileShare.None provides a cross-platform lock.
+                // FileOptions.DeleteOnClose ensures the file is removed when the stream is closed normally.
+                var stream = new FileStream(
+                    lockFilePath,
+                    FileMode.OpenOrCreate,
+                    FileAccess.ReadWrite,
+                    FileShare.None,
+                    1,
+                    FileOptions.DeleteOnClose);
+
+                _activeFileLock = stream;
+                _lockCount = 1;
+                _logger.LogInformation("Scan lock acquired successfully.");
+                return new ActionDisposable(() => ReleaseLock());
+            }
+            catch (IOException)
+            {
+                _logger.LogWarning("Failed to acquire scan lock. Another scan is likely in progress.");
+                return null;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Unexpected error acquiring scan lock at {Path}", lockFilePath);
+                return null;
+            }
+        }
+    }
+
+    private void ReleaseLock()
+    {
+        lock (_lockHandleObj)
+        {
+            _lockCount--;
+            if (_lockCount == 0)
+            {
+                _activeFileLock?.Dispose();
+                _activeFileLock = null;
+                _logger.LogInformation("Scan lock released.");
+            }
+            else
+            {
+                _logger.LogDebug("Scan lock reference released (Remaining: {Count})", _lockCount);
+            }
+        }
+    }
+
+    private sealed class ActionDisposable : IDisposable
+    {
+        private readonly Action _action;
+        private bool _disposed;
+
+        public ActionDisposable(Action action)
+        {
+            _action = action;
+        }
+
+        public void Dispose()
+        {
+            if (!_disposed)
+            {
+                _action();
+                _disposed = true;
+            }
+        }
     }
 
     /// <summary>

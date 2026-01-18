@@ -22,18 +22,22 @@ namespace Jellyfin.Plugin.SmartDuplicateManagement.Services;
 public class DuplicateDetectionEngine
 {
     private readonly ILibraryManager _libraryManager;
+    private readonly DataPersistenceService _persistenceService;
     private readonly ILogger<DuplicateDetectionEngine> _logger;
 
     /// <summary>
     /// Initializes a new instance of the <see cref="DuplicateDetectionEngine"/> class.
     /// </summary>
     /// <param name="libraryManager">The library manager.</param>
+    /// <param name="persistenceService">The persistence service.</param>
     /// <param name="logger">The logger.</param>
     public DuplicateDetectionEngine(
         ILibraryManager libraryManager,
+        DataPersistenceService persistenceService,
         ILogger<DuplicateDetectionEngine> logger)
     {
         _libraryManager = libraryManager;
+        _persistenceService = persistenceService;
         _logger = logger;
     }
 
@@ -49,6 +53,13 @@ public class DuplicateDetectionEngine
         LibraryPreferences preferences,
         CancellationToken cancellationToken)
     {
+        using var scanLock = _persistenceService.AcquireScanLock();
+        if (scanLock == null)
+        {
+            _logger.LogWarning("Failed to acquire scan lock for library {LibraryId}. Another scan may be in progress.", libraryId);
+            return new List<DuplicateGroup>();
+        }
+
         _logger.LogInformation("Starting duplicate scan for library {LibraryId}", libraryId);
 
         var duplicateGroups = new List<DuplicateGroup>();
